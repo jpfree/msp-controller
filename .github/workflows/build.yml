@@ -39,7 +39,8 @@ jobs:
             rm -rf msp-controller-app/www
           fi
           mkdir -p msp-controller-app/www
-          cp -r ./* msp-controller-app/www/
+          cp -r ./* msp-controller-app/www/ 2>/dev/null || true
+          rm -rf msp-controller-app/www/msp-controller-app
         working-directory: .
 
       - name: Change to project directory
