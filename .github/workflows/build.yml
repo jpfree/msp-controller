@@ -35,8 +35,12 @@ jobs:
 
       - name: Replace www directory
         run: |
-          rm -rf msp-controller-app/www
+          if [ -d "msp-controller-app/www" ]; then
+            rm -rf msp-controller-app/www
+          fi
+          mkdir -p msp-controller-app/www
           cp -r ./* msp-controller-app/www/
+        working-directory: .
 
       - name: Change to project directory
         run: cd msp-controller-app
