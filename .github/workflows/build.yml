@@ -1,0 +1,65 @@
+name: Build Cordova MSP Controller
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install Cordova CLI
+        run: npm install -g cordova
+
+      - name: Install project dependencies
+        run: npm install
+        working-directory: ./www
+
+      - name: Add Android platform
+        run: cordova platform add android@latest
+
+      - name: Add TCP plugin
+        run: cordova plugin add https://github.com/cs8425/cordova-plugin-chrome-apps-sockets-tcp.git#fix-tcp-read-stuck
+
+      - name: Add accelerometer plugin
+        run: cordova plugin add cordova-plugin-device-motion
+
+      - name: Build Android APK
+        run: cordova build android --release
+
+      - name: Upload APK as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: msp-controller-apk
+          path: platforms/android/app/build/outputs/apk/release/app-release.apk
+
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        with:
+          tag_name: v${{ github.run_number }}
+          name: MSP Controller Build ${{ github.run_number }}
+          draft: false
+          prerelease: false
+          files: platforms/android/app/build/outputs/apk/release/app-release.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
