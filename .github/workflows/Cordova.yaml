@@ -1,0 +1,48 @@
+name: Build Cordova APK
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout代码
+      uses: actions/checkout@v4
+      with:
+        repository: cs8425/msp-controller
+        ref: main  # 确保使用默认分支
+
+    - name: 设置Node.js环境
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: 安装依赖
+      run: |
+        npm install -g cordova
+        npm install
+
+    - name: 设置Android环境
+      uses: android-actions/setup-android@v2
+      with:
+        api-level: 33
+        build-tools: 34.0.0
+        accept-licenses: 'android-sdk-license,google-gdk-license'
+
+    - name: 添加Android平台
+      run: cordova platform add android@latest
+
+    - name: 构建APK (调试版)
+      run: cordova build android --debug
+
+    - name: 上传APK结果
+      uses: actions/upload-artifact@v4
+      with:
+        name: cordova-apk
+        path: platforms/android/app/build/outputs/apk/debug/*.apk
+        retention-days: 7
