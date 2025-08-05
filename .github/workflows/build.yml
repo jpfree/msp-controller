@@ -59,23 +59,11 @@ jobs:
         working-directory: msp-controller-app
 
       - name: Build Android APK
-        run: cordova build android --release
+        run: cordova build android --release -- --packageType=apk
         working-directory: msp-controller-app
 
       - name: Upload APK as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: msp-controller-apk
-          path: msp-controller-app/platforms/android/app/build/outputs/apk/release/app-release.apk
-
-      - name: Create Release and Upload APK
-        uses: softprops/action-gh-release@v2
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        with:
-          tag_name: v${{ github.run_number }}
-          name: MSP Controller Build ${{ github.run_number }}
-          draft: false
-          prerelease: false
-          files: msp-controller-app/platforms/android/app/build/outputs/apk/release/app-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          path: msp-controller-app/platforms/android/app/build/outputs/apk/release/*.apk
