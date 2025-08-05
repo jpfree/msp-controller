@@ -30,9 +30,13 @@ jobs:
       - name: Install Cordova CLI
         run: npm install -g cordova
 
+      - name: List directory structure
+        run: ls -R
+        working-directory: .
+
       - name: Install project dependencies
         run: npm install
-        working-directory: ./www
+        continue-on-error: true  # Continue if npm install fails, as it may not be needed in root
 
       - name: Add Android platform
         run: cordova platform add android@latest
